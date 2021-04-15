@@ -1,7 +1,7 @@
 import random
-from card import Card
-from suit import Suit
-from rank import Rank
+from src.engine import Card
+from src.enums import Rank
+from src.enums import Suit
 
 class Deck:
     def __init__(self):
@@ -14,7 +14,3 @@ class Deck:
 
     def shuffle(self):
         random.shuffle(self.cards)
-
-    def print(self):
-        for card in self.cards:
-            print('{}{}'.format(card.suit.value, card.rank.value))
