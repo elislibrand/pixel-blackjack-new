@@ -1,22 +1,44 @@
 from src.engine import Card
+from src.enums import HandState
 from src.enums import Rank
 from src.enums import Suit
 
 class Hand:
     def __init__(self):
-        self.build()
-
-    def build(self):
         self.cards = []
 
         self.value = 0
 
-        self.is_soft = False
+        self.state = HandState.NO_ACE
 
+    def add_card(self, card: Card):
+        self.cards.append(card)
+
+        self.add_value(card.get_value())
+
+    def add_value(self, value):
+        self.value += value
+
+        if self.state == HandState.NO_ACE and value == 1:
+            if self.value <= 11:
+                self.value += 10
+                
+                self.state = HandState.SOFT
+            else:
+                self.state = HandState.HARD
+        elif self.state == HandState.SOFT and self.value > 21:
+            self.value -= 10
+            
+            self.state = HandState.HARD
+            
+    def remove_value(self, value):
+        self.value -= value
+
+    '''
     def calculate_value(self):
         value = 0
         n_aces = 0
-
+        
         for card in self.cards:
             if card.rank == Rank.ACE:
                 n_aces += 1
@@ -31,9 +53,5 @@ class Hand:
             else:
                 value += 11
 
-                self.is_soft = True
-
         self.value = value
-
-    def reset(self):
-        self.build()
+    '''
