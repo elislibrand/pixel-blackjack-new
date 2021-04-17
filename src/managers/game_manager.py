@@ -50,6 +50,7 @@ class GameManager:
                 if event.key == pg.K_UP:
                     if self.game.state == GameState.SELECT_BET:
                         self.game.change_bet(1)
+
                 if event.key == pg.K_DOWN:
                     if self.game.state == GameState.SELECT_BET:
                         self.game.change_bet(-1)
@@ -62,7 +63,5 @@ class GameManager:
 
     def draw(self, screen):
         screen.fill(C_BACKGROUND)
-
-        print('State Here: {}'.format(self.game.state.name))
         
         self.game.draw(screen)

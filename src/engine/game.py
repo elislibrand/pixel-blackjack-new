@@ -63,5 +63,5 @@ class Game:
         for card in self.dealer.hand.cards:
             card.draw(screen)
         
-        print('Chips: {}\tBet: {}'.format(self.player.chips, self.player.bet))
-        screen.blit(assets.fonts['standard'].render('Chips: {}        Bet: {}        State: {}'.format(self.player.chips, self.player.bet, self.state.name), False, (255, 255, 255)), (300, 300))
+        #print('Chips: {}\tBet: {}'.format(self.player.chips, self.player.bet))
+        screen.blit(assets.fonts['standard'].render('Chips: {}        Bet: {}        State: {}'.format(self.player.chips, self.player.bet, self.state.name), False, (255, 255, 255)), (6, 6))
