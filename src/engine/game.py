@@ -24,9 +24,10 @@ class Game:
         self.state = GameState.SELECT_BET
 
     def change_bet(self, amount: int):
-        self.player.bet += amount
+        if 0 <= (self.player.bet + amount) <= self.player.chips:
+            self.player.bet += amount
 
-    def deal_cards(self):        
+    def deal_cards(self):
         for i in range(2):
             player_pos = (P_CARD_STARTING_POS[0] + (i * P_CARD_STACK_OFFSET[0]), P_CARD_STARTING_POS[1] + (i * P_CARD_STACK_OFFSET[1]))
             dealer_pos = (D_CARD_STARTING_POS[0] + (i * D_CARD_STACK_OFFSET[0]), D_CARD_STARTING_POS[1] + (i * D_CARD_STACK_OFFSET[1]))
