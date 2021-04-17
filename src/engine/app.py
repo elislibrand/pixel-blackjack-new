@@ -3,11 +3,8 @@ import sys
 from os import path, environ
 from src.engine import Screen
 from src.engine import assets
+from src.managers import GameManager
 from src.data.constants import *
-
-# TESTING
-from src.objects import Card, PlacedCard
-from src.enums import Suit, Rank
 
 class App:
     def __init__(self):
@@ -31,6 +28,8 @@ class App:
     def run(self):
         self.is_playing = True
 
+        self.game_manager = GameManager() # Initializing of managers need work
+
         while self.is_playing:
             self.clock.tick(self.fps)
             
@@ -41,26 +40,21 @@ class App:
         self.quit()
 
     def handle_events(self):
-        for event in pg.event.get():
+        events = pg.event.get()
+        
+        for event in events:
             if event.type == pg.QUIT:
                 self.is_playing = False
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_ESCAPE:
-                    self.is_playing = False
+
+        self.game_manager.handle_events(events)
 
     def update(self):
-        pass
+        self.game_manager.update()
 
     def draw(self):
         pg.display.set_caption('{} (v{}) [FPS: {}]'.format(G_TITLE, G_VERSION, int(self.clock.get_fps())))
         
-        self.screen.window.fill(C_BACKGROUND)
-        #self.screen.window.blit(assets.cards['acespades'], assets.cards['acespades'].get_size())
-
-        card = Card(Suit.HEARTS, Rank.ACE)
-        placed_card = PlacedCard(card)
-
-        placed_card.draw_to(self.screen)
+        self.game_manager.draw(self.screen)
 
         pg.display.flip()
 

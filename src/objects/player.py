@@ -4,10 +4,10 @@ class Player:
     def __init__(self):
         self.chips = 50
         
-        self.build()
-
     def build(self):
         self.hands = [Hand()]
+
+        self.bet = 0
 
         self.is_blackjack = False
     

@@ -1,4 +1,4 @@
-from src.objects import Card
+from src.objects import PlacedCard
 from src.enums import HandState
 from src.enums import Rank
 from src.enums import Suit
@@ -11,7 +11,7 @@ class Hand:
 
         self.state = HandState.NO_ACE
 
-    def add_card(self, card: Card):
+    def add_card(self, card: PlacedCard):
         self.cards.append(card)
 
         self.add_value(card.get_value())
