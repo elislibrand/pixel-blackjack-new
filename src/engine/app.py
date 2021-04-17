@@ -1,33 +1,38 @@
 import pygame as pg
 import sys
-from os import path
+from os import path, environ
 from src.engine import Screen
 from src.engine import assets
+from src.data.constants import *
 
 # TESTING
 from src.objects import Card, PlacedCard
 from src.enums import Suit, Rank
 
 class App:
-    def __init__(self, screen: Screen):
+    def __init__(self):
         pg.init()
 
-        pg.display.set_caption('Pixel Blackjack (FPS: 60)')
-        pg.mouse.set_visible(False)
+        environ['SDL_VIDEO_CENTERED'] = '1'
 
-        self.screen = screen
         self.clock = pg.time.Clock()
 
-        self.load_data()
+        self.build()
 
-    def load_data(self):
+    def build(self):
         assets.load()
+
+        pg.display.set_caption('{} (v{})'.format(G_TITLE, G_VERSION))
+        pg.mouse.set_visible(False)
+
+        self.fps = assets.settings['fps']
+        self.screen = Screen((assets.settings['window']['width'], assets.settings['window']['height']), assets.settings['window']['mode'])
 
     def run(self):
         self.is_playing = True
 
         while self.is_playing:
-            self.clock.tick(60)
+            self.clock.tick(self.fps)
             
             self.handle_events()
             self.update()
@@ -47,14 +52,14 @@ class App:
         pass
 
     def draw(self):
-        pg.display.set_caption('Pixel Blackjack (FPS: {})'.format(int(self.clock.get_fps())))
+        pg.display.set_caption('{} (v{}) [FPS: {}]'.format(G_TITLE, G_VERSION, int(self.clock.get_fps())))
         
-        self.screen.window.fill((48, 102, 60))
+        self.screen.window.fill(C_BACKGROUND)
         #self.screen.window.blit(assets.cards['acespades'], assets.cards['acespades'].get_size())
 
         card = Card(Suit.HEARTS, Rank.ACE)
         placed_card = PlacedCard(card)
-        
+
         placed_card.draw_to(self.screen)
 
         pg.display.flip()

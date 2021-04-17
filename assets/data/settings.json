@@ -1,0 +1,8 @@
+{
+    "fps": 60,
+    "window": {
+        "width": 640,
+        "height": 360,
+        "mode": "fullscreen"
+    }
+}
