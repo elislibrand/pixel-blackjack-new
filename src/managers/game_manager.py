@@ -6,59 +6,63 @@ from src.data.constants import *
 from src.engine import Screen
 from src.objects import Card
 from src.objects import PlacedCard
-
 from src.engine import Game
 
 class GameManager:
     def __init__(self):
-        self.state = GameState.SELECT_BET
-
-        self.game = Game(self.state)
+        self.game = Game()
     
     def handle_events(self, events):
         for event in events:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_RETURN:
-                    if self.state == GameState.SELECT_BET:
+                    if self.game.state == GameState.SELECT_BET:
+                        self.game.state = GameState.IDLING
+
                         self.game.deal_cards()
                         self.game.place_bet()
+                    elif self.game.state == GameState.CHOOSE_ACTION:
+                        self.game.state = GameState.IDLING
 
-                        self.state = GameState.IDLING
-                    if self.state == GameState.CHOOSE_ACTION:
                         self.game.hit()
 
-                        self.state = GameState.IDLING
                 if event.key == pg.K_d:
-                    if self.state == GameState.CHOOSE_ACTION:
+                    if self.game.state == GameState.CHOOSE_ACTION:
+                        self.game.state = GameState.IDLING
+                        
                         self.game.double_down()
 
-                        self.state = GameState.IDLING
                 if event.key == pg.K_s:
-                    if self.state == GameState.CHOOSE_ACTION:
+                    if self.game.state == GameState.CHOOSE_ACTION:
+                        self.game.state = GameState.IDLING
+                        
                         self.game.split()
 
-                        self.state = GameState.IDLING
                 if event.key == pg.K_SPACE:
-                    if self.state == GameState.CHOOSE_ACTION:
+                    if self.game.state == GameState.CHOOSE_ACTION:
+                        self.game.state = GameState.IDLING
+
                         self.game.stand()
 
-                        self.state = GameState.IDLING
                 if event.key == pg.K_ESCAPE:
                     print('PAUSE')
+
                 if event.key == pg.K_UP:
-                    if self.state == GameState.SELECT_BET:
+                    if self.game.state == GameState.SELECT_BET:
                         self.game.change_bet(1)
                 if event.key == pg.K_DOWN:
-                    if self.state == GameState.SELECT_BET:
+                    if self.game.state == GameState.SELECT_BET:
                         self.game.change_bet(-1)
 
     def update(self):
-        if self.state == GameState.SELECT_BET:
+        if self.game.state == GameState.SELECT_BET:
             pass
-        elif self.state == GameState.CHOOSE_ACTION:
+        elif self.game.state == GameState.CHOOSE_ACTION:
             pass
 
     def draw(self, screen):
         screen.window.fill(C_BACKGROUND)
+
+        print('State Here: {}'.format(self.game.state.name))
         
         self.game.draw(screen)

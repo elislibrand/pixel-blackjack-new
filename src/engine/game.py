@@ -7,8 +7,8 @@ from src.enums import GameState
 from src.data.constants import *
 
 class Game:
-    def __init__(self, state: GameState):
-        self.state = state
+    def __init__(self):
+        self.state = GameState.SELECT_BET
         
         self.dealer = Dealer()
         self.player = Player()
@@ -45,6 +45,8 @@ class Game:
 
         self.player.hands[0].cards.append(PlacedCard(self.dealer.playing_deck.draw_card(), player_pos))
 
+        print('hejehej')
+
     def stand(self):
         pass
 
@@ -62,4 +64,4 @@ class Game:
             card.draw(screen)
         
         print('Chips: {}\tBet: {}'.format(self.player.chips, self.player.bet))
-        screen.window.blit(assets.fonts['standard'].render('Chips: {}      Bet: {}'.format(self.player.chips, self.player.bet), False, (255, 255, 255)), (300, 300))
+        screen.window.blit(assets.fonts['standard'].render('Chips: {}        Bet: {}        State: {}'.format(self.player.chips, self.player.bet, self.state.name), False, (255, 255, 255)), (300, 300))
