@@ -45,7 +45,7 @@ class Game:
 
         self.player.hands[0].cards.append(PlacedCard(self.dealer.playing_deck.draw_card(), player_pos))
 
-        print('hejehej')
+        self.state = GameState.CHOOSE_ACTION
 
     def stand(self):
         pass
@@ -64,4 +64,4 @@ class Game:
             card.draw(screen)
         
         print('Chips: {}\tBet: {}'.format(self.player.chips, self.player.bet))
-        screen.window.blit(assets.fonts['standard'].render('Chips: {}        Bet: {}        State: {}'.format(self.player.chips, self.player.bet, self.state.name), False, (255, 255, 255)), (300, 300))
+        screen.blit(assets.fonts['standard'].render('Chips: {}        Bet: {}        State: {}'.format(self.player.chips, self.player.bet, self.state.name), False, (255, 255, 255)), (300, 300))

@@ -23,7 +23,7 @@ class App:
         pg.mouse.set_visible(False)
 
         self.fps = assets.settings['fps']
-        self.screen = Screen((assets.settings['window']['width'], assets.settings['window']['height']), assets.settings['window']['mode'])
+        self.screen = Screen()
 
     def run(self):
         self.is_playing = True
@@ -53,8 +53,14 @@ class App:
 
     def draw(self):
         pg.display.set_caption('{} (v{}) [FPS: {}]'.format(G_TITLE, G_VERSION, int(self.clock.get_fps())))
+
+        draw_area = pg.Surface(G_SIZE)
         
-        self.game_manager.draw(self.screen)
+        self.game_manager.draw(draw_area)
+        
+        draw_area = pg.transform.scale(draw_area, (G_SIZE[0] * assets.settings['window']['scale'], G_SIZE[1] * assets.settings['window']['scale']))
+        
+        self.screen.window.blit(draw_area, draw_area.get_rect())
 
         pg.display.flip()
 

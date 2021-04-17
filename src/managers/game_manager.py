@@ -2,11 +2,11 @@ import pygame as pg
 from src.enums import GameState
 from src.enums import Suit
 from src.enums import Rank
-from src.data.constants import *
 from src.engine import Screen
 from src.objects import Card
 from src.objects import PlacedCard
 from src.engine import Game
+from src.data.constants import *
 
 class GameManager:
     def __init__(self):
@@ -61,7 +61,7 @@ class GameManager:
             pass
 
     def draw(self, screen):
-        screen.window.fill(C_BACKGROUND)
+        screen.fill(C_BACKGROUND)
 
         print('State Here: {}'.format(self.game.state.name))
         

@@ -1,8 +1,8 @@
 {
     "fps": 60,
     "window": {
-        "width": 640,
-        "height": 360,
+        "scale": 3,
+        "auto_scale": true,
         "mode": "fullscreen"
     }
 }
