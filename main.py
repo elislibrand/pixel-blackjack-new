@@ -1,8 +1,9 @@
 from src.engine import App
+from src.engine import Screen
 
 def main():
     try:
-        app = App()
+        app = App(Screen())
 
         app.run()
     except Exception as e:

@@ -1,13 +1,11 @@
-from src.engine import Hand
+from src.objects import Hand
 
-class Player:
+class Dealer:
     def __init__(self):
-        self.chips = 50
-        
         self.build()
 
     def build(self):
-        self.hands = [Hand()]
+        self.hand = Hand()
 
         self.is_blackjack = False
     

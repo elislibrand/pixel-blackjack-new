@@ -1,5 +1,5 @@
 import random
-from src.engine import Card
+from src.objects import Card
 from src.enums import Rank
 from src.enums import Suit
 
