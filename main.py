@@ -1,5 +1,4 @@
 from src.engine import App
-from src.engine import Screen
 
 def main():
     try:
