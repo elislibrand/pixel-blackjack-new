@@ -43,6 +43,10 @@ class GameManager:
                         self.game.state = GameState.IDLING
 
                         self.game.stand()
+                    elif self.game.state == GameState.DEALER_SHOW:
+                        self.game.state = GameState.IDLING
+                        
+                        self.game.end_round()
 
                 if event.key == pg.K_ESCAPE:
                     print('PAUSE')

@@ -7,12 +7,13 @@ class Dealer:
         
     def build(self):
         self.hand = Hand()
-
-        self.is_blackjack = False
     
     def shuffle_playing_deck(self):
         self.playing_deck.create(n_decks = 6)
         self.playing_deck.shuffle()
+
+    def has_blackjack(self):
+        return self.hand.value == 21 and len(self.hand.cards) == 2
 
     def reset(self):
         self.build()
