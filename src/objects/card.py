@@ -17,3 +17,6 @@ class Card:
             return 10
         
         return int(self.rank.value)
+
+    def is_cut_card(self):
+        return self.rank is None

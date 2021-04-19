@@ -1,4 +1,5 @@
 import pygame as pg
+import sys
 from src.enums import GameState
 from src.enums import Suit
 from src.enums import Rank
@@ -24,7 +25,7 @@ class GameManager:
                     elif self.game.state == GameState.CHOOSE_ACTION:
                         self.game.state = GameState.IDLING
 
-                        self.game.hit()
+                        self.game.player_hit()
 
                 if event.key == pg.K_d:
                     if self.game.state == GameState.CHOOSE_ACTION:
@@ -58,6 +59,11 @@ class GameManager:
                 if event.key == pg.K_DOWN:
                     if self.game.state == GameState.SELECT_BET:
                         self.game.change_bet(-1)
+
+                # Testing only
+                if event.key == pg.K_q:
+                    pg.quit()
+                    sys.exit()
 
     def update(self):
         if self.game.state == GameState.SELECT_BET:

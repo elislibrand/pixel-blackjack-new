@@ -6,6 +6,7 @@ class Dealer:
         self.playing_deck = Deck()
 
         self.should_shuffle = True
+        self.cut_card = None
         
     def build(self):
         self.hand = Hand()
@@ -15,22 +16,15 @@ class Dealer:
 
             self.should_shuffle = False
     
-    def shuffle_playing_deck(self):
-        print('Shuffling...')
-        
-        self.playing_deck.create(n_decks = 6)
+    def shuffle_playing_deck(self):        
+        self.playing_deck.create(n_decks = 1)
         self.playing_deck.shuffle()
         self.playing_deck.add_cut_card()
 
+        self.cut_card = None
+
     def draw_card(self):
-        card = self.playing_deck.draw_card()
-        
-        if card.rank is None:
-            self.should_shuffle = True
-
-            card = self.playing_deck.draw_card()
-
-        return card
+        return self.playing_deck.draw_card()
 
     def has_blackjack(self):
         return self.hand.value == 21 and len(self.hand.cards) == 2

@@ -2,6 +2,7 @@ from src.engine import assets
 from src.engine import Screen
 from src.objects import Player
 from src.objects import Dealer
+from src.objects import Hand
 from src.objects import PlacedCard
 from src.enums import GameState
 from src.data.constants import *
@@ -27,11 +28,11 @@ class Game:
 
     def deal_cards(self):
         for i in range(2):
-            player_pos = (P_CARD_STARTING_POS[0] + (i * P_CARD_STACK_OFFSET[0]), P_CARD_STARTING_POS[1] + (i * P_CARD_STACK_OFFSET[1]))
+            self.player_hit()
+            
             dealer_pos = (D_CARD_STARTING_POS[0] + (i * D_CARD_STACK_OFFSET[0]), D_CARD_STARTING_POS[1] + (i * D_CARD_STACK_OFFSET[1]))
 
-            self.player.hands[0].add_card(PlacedCard(self.dealer.draw_card(), player_pos))
-            self.dealer.hand.add_card(PlacedCard(self.dealer.draw_card(), dealer_pos, is_visible = i))
+            self.draw_card(self.dealer.hand, dealer_pos, is_visible = i)
         
         if self.player.has_blackjack() or self.dealer.has_blackjack():
             return self.dealer_show()
@@ -41,13 +42,25 @@ class Game:
     def place_bet(self):
         self.player.chips -= self.player.bet
 
-    def hit(self, is_rotated = False):
+    def player_hit(self, is_rotated: bool = False):
         n_cards = len(self.player.hands[0].cards)
         player_pos = (P_CARD_STARTING_POS[0] + (n_cards * P_CARD_STACK_OFFSET[0]), P_CARD_STARTING_POS[1] + (n_cards * P_CARD_STACK_OFFSET[1]))
 
-        self.player.hands[0].add_card(PlacedCard(self.dealer.draw_card(), player_pos, is_rotated))
+        self.draw_card(self.player.hands[0], player_pos)
 
         self.state = GameState.CHOOSE_ACTION
+
+    def draw_card(self, hand: Hand, pos, is_rotated: bool = False, is_visible: bool = True):
+        drawn_card = self.dealer.draw_card()
+        
+        if drawn_card.is_cut_card():
+            self.dealer.should_shuffle = True
+            self.dealer.cut_card = PlacedCard(drawn_card, (0, 0))
+
+            drawn_card = self.dealer.draw_card()
+            # TODO function to show cut card
+
+        hand.add_card(PlacedCard(drawn_card, pos, is_rotated, is_visible))
 
     def stand(self):
         self.dealer_show()
@@ -61,7 +74,7 @@ class Game:
         self.player.chips -= self.player.bet
         self.player.bet *= 2
 
-        self.hit(is_rotated = True)
+        self.player_hit(is_rotated = True)
         
         self.dealer_show()
 
@@ -104,6 +117,9 @@ class Game:
         
         for card in self.dealer.hand.cards:
             card.draw(screen)
+
+        if self.dealer.cut_card is not None:
+            self.dealer.cut_card.draw(screen)
         
         #print('Chips: {}\tBet: {}'.format(self.player.chips, self.player.bet))
         screen.blit(assets.fonts['standard'].render('Chips: {}        Bet: {}        State: {}'.format(self.player.chips, self.player.bet, self.state.name), False, (255, 255, 255)), (6, 6))
