@@ -25,7 +25,7 @@ class Dealer:
     def draw_card(self):
         card = self.playing_deck.draw_card()
         
-        if card.get_value() == 0:
+        if card.rank is None:
             self.should_shuffle = True
 
             card = self.playing_deck.draw_card()
