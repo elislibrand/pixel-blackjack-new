@@ -7,6 +7,9 @@ class Card:
         self.rank = rank
 
     def get_value(self):
+        if self.rank is None:
+            return 0
+
         if self.rank == Rank.ACE:
             return 1
         

@@ -13,8 +13,6 @@ class Game:
         self.player = Player()
         self.dealer = Dealer()
         
-        self.dealer.shuffle_playing_deck()
-
         self.new_round()
     
     def new_round(self):
@@ -32,8 +30,8 @@ class Game:
             player_pos = (P_CARD_STARTING_POS[0] + (i * P_CARD_STACK_OFFSET[0]), P_CARD_STARTING_POS[1] + (i * P_CARD_STACK_OFFSET[1]))
             dealer_pos = (D_CARD_STARTING_POS[0] + (i * D_CARD_STACK_OFFSET[0]), D_CARD_STARTING_POS[1] + (i * D_CARD_STACK_OFFSET[1]))
 
-            self.player.hands[0].add_card(PlacedCard(self.dealer.playing_deck.draw_card(), player_pos))
-            self.dealer.hand.add_card(PlacedCard(self.dealer.playing_deck.draw_card(), dealer_pos, is_visible = i))
+            self.player.hands[0].add_card(PlacedCard(self.dealer.draw_card(), player_pos))
+            self.dealer.hand.add_card(PlacedCard(self.dealer.draw_card(), dealer_pos, is_visible = i))
         
         if self.player.has_blackjack() or self.dealer.has_blackjack():
             return self.dealer_show()
@@ -47,7 +45,7 @@ class Game:
         n_cards = len(self.player.hands[0].cards)
         player_pos = (P_CARD_STARTING_POS[0] + (n_cards * P_CARD_STACK_OFFSET[0]), P_CARD_STARTING_POS[1] + (n_cards * P_CARD_STACK_OFFSET[1]))
 
-        self.player.hands[0].add_card(PlacedCard(self.dealer.playing_deck.draw_card(), player_pos, is_rotated))
+        self.player.hands[0].add_card(PlacedCard(self.dealer.draw_card(), player_pos, is_rotated))
 
         self.state = GameState.CHOOSE_ACTION
 

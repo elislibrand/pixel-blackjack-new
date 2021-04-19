@@ -6,7 +6,7 @@ class Screen:
     def __init__(self):
         # This function needs to be changed to add windowed borderless and windowed mode
         #size = (G_SIZE[0] * assets.settings['window']['scale'], G_SIZE[1] * assets.settings['window']['scale'])
-        mode = assets.settings['window']['mode']
+        mode = ''#assets.settings['window']['mode']
         
         if mode == 'fullscreen':
             flag = pg.FULLSCREEN
@@ -15,7 +15,7 @@ class Screen:
         else:
             flag = 0
 
-        self.window = pg.display.set_mode(flags = flag)
+        self.window = pg.display.set_mode((640, 360), flags = flag)
 
         if assets.settings['window']['auto_scale']:
             width, height = pg.display.get_window_size()
