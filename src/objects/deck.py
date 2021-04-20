@@ -8,12 +8,7 @@ class Deck:
         self.cards = []
 
     def create(self, n_decks: int = 1):
-        self.cards = []
-
-        for _ in range(n_decks):
-            for suit in Suit:
-                for rank in Rank:
-                    self.cards.append(Card(suit, rank))
+        self.cards = [Card(suit, rank) for suit in Suit for rank in Rank for i in range(n_decks)]
 
     def shuffle(self):
         random.shuffle(self.cards)

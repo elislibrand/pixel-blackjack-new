@@ -54,11 +54,11 @@ class GameManager:
 
                 if event.key == pg.K_UP:
                     if self.game.state == GameState.SELECT_BET:
-                        self.game.change_bet(1)
+                        self.game.change_bet(2)
 
                 if event.key == pg.K_DOWN:
                     if self.game.state == GameState.SELECT_BET:
-                        self.game.change_bet(-1)
+                        self.game.change_bet(-2)
 
                 # Testing only
                 if event.key == pg.K_q:

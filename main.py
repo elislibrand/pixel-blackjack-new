@@ -1,4 +1,5 @@
 from src.engine import App
+from src.data import easings
 
 def main():
     try:

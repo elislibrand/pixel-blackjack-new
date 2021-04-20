@@ -1,5 +1,6 @@
 from src.engine import assets
 from src.engine import Screen
+from src.engine import Animator
 from src.objects import Player
 from src.objects import Dealer
 from src.objects import Hand
@@ -13,6 +14,8 @@ class Game:
         
         self.player = Player()
         self.dealer = Dealer()
+
+        self.animator = Animator()
         
         self.new_round()
     
