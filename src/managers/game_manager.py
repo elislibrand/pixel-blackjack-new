@@ -61,15 +61,15 @@ class GameManager:
                         self.game.change_bet(-2)
 
                 # Testing only
+                if event.key == pg.K_r:
+                    self.game = Game()
+
                 if event.key == pg.K_q:
                     pg.quit()
                     sys.exit()
 
     def update(self):
-        if self.game.state == GameState.SELECT_BET:
-            pass
-        elif self.game.state == GameState.CHOOSE_ACTION:
-            pass
+        self.game.update()
 
     def draw(self, screen):
         screen.fill(C_BACKGROUND)

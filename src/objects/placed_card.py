@@ -10,13 +10,13 @@ class PlacedCard(Card):
 
         self.pos = pos
             
-        if card.rank is None:
-            self.image = assets.cards['cut']
+        if is_visible:
+            self.image = assets.cards['cut'] if card.rank is None else assets.cards['{}{}'.format(card.rank.name, card.suit.name).lower()]
         else:
-            self.image = assets.cards['{}{}'.format(card.rank.name, card.suit.name).lower()] if is_visible else assets.cards['facedown']
+            self.image = assets.cards['facedown']
 
     def set_visible(self):
-        self.image = assets.cards['{}{}'.format(self.rank.name, self.suit.name).lower()]
+        self.image = assets.cards['cut'] if self.rank is None else assets.cards['{}{}'.format(self.rank.name, self.suit.name).lower()]
 
     def draw(self, screen: Screen):
         screen.blit(self.image, (self.pos[0], self.pos[1]))

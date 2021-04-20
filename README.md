@@ -11,7 +11,6 @@
 * 'Space' to clear the board
 
 ## TODO
-* Begin Animator class
-* Add animation queue
+* Clean up project code
 * Player/dealer bust when over 21
 * Bet cannot be 0

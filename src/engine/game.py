@@ -1,13 +1,14 @@
 from src.engine import assets
 from src.engine import Screen
 from src.engine import Animator
+from src.objects import Animation
 from src.objects import Player
 from src.objects import Dealer
 from src.objects import Hand
+from src.objects import Card
 from src.objects import PlacedCard
 from src.enums import GameState
 from src.data.constants import *
-
 class Game:
     def __init__(self):
         self.state = GameState.SELECT_BET
@@ -16,6 +17,10 @@ class Game:
         self.dealer = Dealer()
 
         self.animator = Animator()
+
+        self.props = [
+            PlacedCard(Card(None, None), D_PLAYING_DECK_POS, is_visible = False)
+        ]
         
         self.new_round()
     
@@ -47,13 +52,13 @@ class Game:
 
     def player_hit(self, is_rotated: bool = False):
         n_cards = len(self.player.hands[0].cards)
-        player_pos = (P_CARD_STARTING_POS[0] + (n_cards * P_CARD_STACK_OFFSET[0]), P_CARD_STARTING_POS[1] + (n_cards * P_CARD_STACK_OFFSET[1]))
+        destination = (P_CARD_STARTING_POS[0] + (n_cards * P_CARD_STACK_OFFSET[0]), P_CARD_STARTING_POS[1] + (n_cards * P_CARD_STACK_OFFSET[1]))
 
-        self.draw_card(self.player.hands[0], player_pos)
+        self.draw_card(self.player.hands[0], destination)
 
         self.state = GameState.CHOOSE_ACTION
 
-    def draw_card(self, hand: Hand, pos, is_rotated: bool = False, is_visible: bool = True):
+    def draw_card(self, hand: Hand, destination, is_rotated: bool = False, is_visible: bool = True):
         drawn_card = self.dealer.draw_card()
         
         if drawn_card.is_cut_card():
@@ -63,7 +68,12 @@ class Game:
             drawn_card = self.dealer.draw_card()
             # TODO function to show cut card
 
-        hand.add_card(PlacedCard(drawn_card, pos, is_rotated, is_visible))
+        hand.add_card(PlacedCard(drawn_card, D_PLAYING_DECK_POS, is_rotated, is_visible = False))
+
+        if is_visible:
+            self.animator.add_jobs([Animation(hand.cards[-1], destination, on_finish = hand.cards[-1].set_visible)])
+        else:
+            self.animator.add_jobs([Animation(hand.cards[-1], destination)])
 
     def stand(self):
         self.dealer_show()
@@ -109,12 +119,15 @@ class Game:
 
         self.player.chips += self.get_winnings()
         
-        self.player.reset()
-        self.dealer.reset()
-        
-        self.state = GameState.SELECT_BET
+        self.new_round()
+
+    def update(self):
+        self.animator.play()
 
     def draw(self, screen: Screen):
+        for prop in self.props:
+            prop.draw(screen)
+            
         for card in self.player.hands[0].cards:
             card.draw(screen)
         
