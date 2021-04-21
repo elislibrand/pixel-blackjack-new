@@ -1,5 +1,6 @@
 from src.objects import Deck
 from src.objects import Hand
+from src.data.constants import *
 
 class Dealer:
     def __init__(self):
@@ -25,6 +26,14 @@ class Dealer:
 
     def draw_card(self):
         return self.playing_deck.draw_card()
+
+    def get_next_card_pos(self):
+        n_cards = len(self.hand.cards)
+
+        return (
+            D_CARD_STARTING_POS[0] + (n_cards * D_CARD_STACK_OFFSET[0]),
+            D_CARD_STARTING_POS[1] + (n_cards * D_CARD_STACK_OFFSET[1])
+        )
 
     def has_blackjack(self):
         return self.hand.value == 21 and len(self.hand.cards) == 2

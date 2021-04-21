@@ -31,19 +31,19 @@ class GameManager:
                     if self.game.state == GameState.CHOOSE_ACTION:
                         self.game.state = GameState.IDLING
                         
-                        self.game.double_down()
+                        self.game.player_double_down()
 
                 if event.key == pg.K_s:
                     if self.game.state == GameState.CHOOSE_ACTION:
                         self.game.state = GameState.IDLING
                         
-                        self.game.split()
+                        self.game.player_split()
 
                 if event.key == pg.K_SPACE:
                     if self.game.state == GameState.CHOOSE_ACTION:
                         self.game.state = GameState.IDLING
 
-                        self.game.stand()
+                        self.game.player_stand()
                     elif self.game.state == GameState.DEALER_SHOW:
                         self.game.state = GameState.IDLING
                         

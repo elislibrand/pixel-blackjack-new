@@ -27,3 +27,6 @@ class Animator:
                     animation.finish()
 
                     self.jobs.remove(animation)
+
+    def is_playing(self):
+        return len(self.jobs) > 0

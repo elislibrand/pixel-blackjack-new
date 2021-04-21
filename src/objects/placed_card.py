@@ -1,3 +1,4 @@
+import pygame as pg
 from src.engine import assets
 from src.engine import Screen
 from src.objects import Card

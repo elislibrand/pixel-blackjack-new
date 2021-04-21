@@ -59,7 +59,6 @@ class App:
         self.game_manager.draw(draw_area)
         
         draw_area = pg.transform.scale(draw_area, (G_SIZE[0] * assets.settings['window']['scale'], G_SIZE[1] * assets.settings['window']['scale']))
-        #draw_area = pg.transform.scale(draw_area, (G_SIZE[0] * 2, G_SIZE[1] * 2))
         
         #self.screen.window.blit(draw_area, draw_area.get_rect())
         self.screen.window.blit(draw_area, pg.Rect(

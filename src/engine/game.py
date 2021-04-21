@@ -9,6 +9,7 @@ from src.objects import Card
 from src.objects import PlacedCard
 from src.enums import GameState
 from src.data.constants import *
+
 class Game:
     def __init__(self):
         self.state = GameState.SELECT_BET
@@ -35,28 +36,26 @@ class Game:
             self.player.bet += amount
 
     def deal_cards(self):
-        for i in range(2):
-            self.player_hit()
-            
-            dealer_pos = (D_CARD_STARTING_POS[0] + (i * D_CARD_STACK_OFFSET[0]), D_CARD_STARTING_POS[1] + (i * D_CARD_STACK_OFFSET[1]))
+        animations = []
 
-            self.draw_card(self.dealer.hand, dealer_pos, is_visible = i)
+        for i in range(2):
+            animations.extend(self.draw_card(self.player.hands[0], self.player.get_next_card_pos()))
+            animations.extend(self.draw_card(self.dealer.hand, self.dealer.get_next_card_pos(), is_visible = i))
         
+        animations[-1].on_finish = self.finish_deal_cards
+
+        self.animator.add_jobs(animations, asynchronous = True)
+
+    def finish_deal_cards(self):
+        self.dealer.hand.cards[1].set_visible()
+
         if self.player.has_blackjack() or self.dealer.has_blackjack():
             return self.dealer_show()
-            
+
         self.state = GameState.CHOOSE_ACTION
 
     def place_bet(self):
         self.player.chips -= self.player.bet
-
-    def player_hit(self, is_rotated: bool = False):
-        n_cards = len(self.player.hands[0].cards)
-        destination = (P_CARD_STARTING_POS[0] + (n_cards * P_CARD_STACK_OFFSET[0]), P_CARD_STARTING_POS[1] + (n_cards * P_CARD_STACK_OFFSET[1]))
-
-        self.draw_card(self.player.hands[0], destination)
-
-        self.state = GameState.CHOOSE_ACTION
 
     def draw_card(self, hand: Hand, destination, is_rotated: bool = False, is_visible: bool = True):
         drawn_card = self.dealer.draw_card()
@@ -71,14 +70,21 @@ class Game:
         hand.add_card(PlacedCard(drawn_card, D_PLAYING_DECK_POS, is_rotated, is_visible = False))
 
         if is_visible:
-            self.animator.add_jobs([Animation(hand.cards[-1], destination, on_finish = hand.cards[-1].set_visible)])
-        else:
-            self.animator.add_jobs([Animation(hand.cards[-1], destination)])
+            return [Animation(hand.cards[-1], destination, on_finish = hand.cards[-1].set_visible)]
+        
+        return [Animation(hand.cards[-1], destination)]
 
-    def stand(self):
+    def player_hit(self, is_rotated: bool = False):
+        animation = self.draw_card(self.player.hands[0], self.player.get_next_card_pos())
+        
+        self.animator.add_jobs(animation, asynchronous = True)
+
+        self.state = GameState.CHOOSE_ACTION
+
+    def player_stand(self):
         self.dealer_show()
 
-    def double_down(self):
+    def player_double_down(self):
         if self.player.chips < self.player.bet:
             self.state = GameState.CHOOSE_ACTION
             
@@ -91,7 +97,7 @@ class Game:
         
         self.dealer_show()
 
-    def split(self):
+    def player_split(self):
         pass
 
     def dealer_show(self):
