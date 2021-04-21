@@ -10,9 +10,11 @@ class PlacedCard(Card):
         super().__init__(card.suit, card.rank)
 
         self.pos = pos
-            
-        if is_visible:
-            self.image = assets.cards['cut'] if card.rank is None else assets.cards['{}{}'.format(card.rank.name, card.suit.name).lower()]
+
+        if card.rank is None:
+            self.image = assets.cards['cut']
+        elif is_visible:
+            self.image = assets.cards['{}{}'.format(card.rank.name, card.suit.name).lower()]
         else:
             self.image = assets.cards['facedown']
 

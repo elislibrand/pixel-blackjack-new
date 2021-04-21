@@ -19,9 +19,7 @@ class Game:
 
         self.animator = Animator()
 
-        self.props = [
-            PlacedCard(Card(None, None), D_PLAYING_DECK_POS, is_visible = False)
-        ]
+        self.props = []
         
         self.new_round()
     
@@ -39,8 +37,8 @@ class Game:
         animations = []
 
         for i in range(2):
-            animations.extend(self.draw_card(self.player.hands[0], self.player.get_next_card_pos()))
-            animations.extend(self.draw_card(self.dealer.hand, self.dealer.get_next_card_pos(), is_visible = i))
+            animations.extend(self.take_card(self.player.hands[0], self.player.get_next_card_pos()))
+            animations.extend(self.take_card(self.dealer.hand, self.dealer.get_next_card_pos(), is_visible = i))
         
         animations[-1].on_finish = self.finish_deal_cards
 
@@ -50,39 +48,45 @@ class Game:
         self.dealer.hand.cards[1].set_visible()
 
         if self.player.has_blackjack() or self.dealer.has_blackjack():
-            return self.dealer_show()
+            return self.dealer_take()
 
         self.state = GameState.CHOOSE_ACTION
 
     def place_bet(self):
         self.player.chips -= self.player.bet
 
-    def draw_card(self, hand: Hand, destination, is_rotated: bool = False, is_visible: bool = True):
-        drawn_card = self.dealer.draw_card()
+    def take_card(self, hand: Hand, destination, is_rotated: bool = False, is_visible: bool = True):
+        animations = []
+
+        card = self.dealer.take_card()
         
-        if drawn_card.is_cut_card():
+        if card.is_cut_card():
             self.dealer.should_shuffle = True
-            self.dealer.cut_card = PlacedCard(drawn_card, (0, 0))
+            self.dealer.cut_card = PlacedCard(card, D_PLAYING_DECK_POS)
+            
+            animations.append(Animation(self.dealer.cut_card, (D_PLAYING_DECK_POS[0] - CARD_SIZE[0] * 2, D_PLAYING_DECK_POS[1])))
 
-            drawn_card = self.dealer.draw_card()
-            # TODO function to show cut card
+            card = self.dealer.take_card()
 
-        hand.add_card(PlacedCard(drawn_card, D_PLAYING_DECK_POS, is_rotated, is_visible = False))
-
-        if is_visible:
-            return [Animation(hand.cards[-1], destination, on_finish = hand.cards[-1].set_visible)]
+        placed_card = PlacedCard(card, D_PLAYING_DECK_POS, is_rotated, is_visible = False)
+        hand.add_card(placed_card)
         
-        return [Animation(hand.cards[-1], destination)]
+        if is_visible:
+            animations.append(Animation(placed_card, destination, on_finish = hand.cards[-1].set_visible))
+        else:
+            animations.append(Animation(placed_card, destination))
+
+        return animations
 
     def player_hit(self, is_rotated: bool = False):
-        animation = self.draw_card(self.player.hands[0], self.player.get_next_card_pos())
+        animation = self.take_card(self.player.hands[0], self.player.get_next_card_pos())
         
         self.animator.add_jobs(animation, asynchronous = True)
 
         self.state = GameState.CHOOSE_ACTION
 
     def player_stand(self):
-        self.dealer_show()
+        self.dealer_take()
 
     def player_double_down(self):
         if self.player.chips < self.player.bet:
@@ -95,12 +99,12 @@ class Game:
 
         self.player_hit(is_rotated = True)
         
-        self.dealer_show()
+        self.dealer_take()
 
     def player_split(self):
         pass
 
-    def dealer_show(self):
+    def dealer_take(self):
         self.state = GameState.DEALER_SHOW
 
         self.dealer.hand.cards[0].set_visible()
@@ -133,15 +137,14 @@ class Game:
     def draw(self, screen: Screen):
         for prop in self.props:
             prop.draw(screen)
-            
-        for card in self.player.hands[0].cards:
-            card.draw(screen)
-        
-        for card in self.dealer.hand.cards:
-            card.draw(screen)
 
+        self.dealer.draw_deck(screen)
+        
         if self.dealer.cut_card is not None:
             self.dealer.cut_card.draw(screen)
+            
+        self.player.draw_hands(screen)
+        self.dealer.draw_hand(screen)
         
         #print('Chips: {}\tBet: {}'.format(self.player.chips, self.player.bet))
         screen.blit(assets.fonts['standard'].render('Chips: {}        Bet: {}        State: {}'.format(self.player.chips, self.player.bet, self.state.name), False, (255, 255, 255)), (6, 6))

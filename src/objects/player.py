@@ -28,5 +28,9 @@ class Player:
 
         return False
 
+    def draw_hands(self, screen):
+        for card in self.hands[0].cards:
+            card.draw(screen)
+
     def reset(self):
         self.build()

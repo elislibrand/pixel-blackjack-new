@@ -16,5 +16,5 @@ class Deck:
     def add_cut_card(self):
         self.cards.insert(random.randint(int((len(self.cards) * 0.15) - 1), int((len(self.cards) * 0.3)) - 1), Card(None, None))
 
-    def draw_card(self):
+    def take_card(self):
         return self.cards.pop()

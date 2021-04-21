@@ -1,5 +1,8 @@
+from src.engine import assets
 from src.objects import Deck
 from src.objects import Hand
+from src.objects import Card
+from src.objects import PlacedCard
 from src.data.constants import *
 
 class Dealer:
@@ -24,8 +27,8 @@ class Dealer:
 
         self.cut_card = None
 
-    def draw_card(self):
-        return self.playing_deck.draw_card()
+    def take_card(self):
+        return self.playing_deck.take_card()
 
     def get_next_card_pos(self):
         n_cards = len(self.hand.cards)
@@ -37,6 +40,16 @@ class Dealer:
 
     def has_blackjack(self):
         return self.hand.value == 21 and len(self.hand.cards) == 2
+
+    def draw_deck(self, screen):        
+        if self.playing_deck.cards[-1].rank is None:
+            screen.blit(assets.cards['cut'], D_PLAYING_DECK_POS)
+        else:
+            screen.blit(assets.cards['facedown'], D_PLAYING_DECK_POS)
+
+    def draw_hand(self, screen):
+        for card in self.hand.cards:
+            card.draw(screen)
 
     def reset(self):
         self.build()
