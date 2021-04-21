@@ -22,7 +22,7 @@ class App:
         pg.display.set_caption('{} (v{})'.format(G_TITLE, G_VERSION))
         pg.mouse.set_visible(False)
 
-        self.fps = assets.settings['fps']
+        self.refresh_rate = assets.settings['refresh_rate']
         self.screen = Screen()
 
     def run(self):
@@ -31,7 +31,7 @@ class App:
         self.game_manager = GameManager() # Initializing of managers need work
 
         while self.is_playing:
-            self.clock.tick(self.fps)
+            self.clock.tick(self.refresh_rate)
             
             self.handle_events()
             self.update()
@@ -59,8 +59,15 @@ class App:
         self.game_manager.draw(draw_area)
         
         draw_area = pg.transform.scale(draw_area, (G_SIZE[0] * assets.settings['window']['scale'], G_SIZE[1] * assets.settings['window']['scale']))
+        #draw_area = pg.transform.scale(draw_area, (G_SIZE[0] * 2, G_SIZE[1] * 2))
         
-        self.screen.window.blit(draw_area, draw_area.get_rect())
+        #self.screen.window.blit(draw_area, draw_area.get_rect())
+        self.screen.window.blit(draw_area, pg.Rect(
+            int((self.screen.window.get_width() - draw_area.get_width()) / 2), 
+            int((self.screen.window.get_height() - draw_area.get_height()) / 2), 
+            draw_area.get_width(),
+            draw_area.get_height()
+        ))
 
         pg.display.flip()
 

@@ -23,7 +23,7 @@ class Animation:
             self.starting_y + ((self.destination_y - self.starting_y) * easing_progress)
         )
 
-        self.progress += 1 / (assets.settings['fps'] * self.duration_s)
+        self.progress += 1 / (assets.settings['refresh_rate'] * self.duration_s)
 
         if self.progress >= 1:
             self.progress = 1
