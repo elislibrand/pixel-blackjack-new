@@ -30,3 +30,10 @@ class Animator:
 
     def is_playing(self):
         return len(self.jobs) > 0
+
+    def draw(self, screen):
+        for animation in self.jobs:
+            if isinstance(animation, list):
+                animation[0].obj.draw(screen)
+            else:
+                animation.obj.draw(screen)

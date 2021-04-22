@@ -30,7 +30,7 @@ class Game:
         self.state = GameState.SELECT_BET
 
     def change_bet(self, amount: int):
-        if 0 <= (self.player.bet + amount) <= self.player.chips:
+        if BET_STEP <= (self.player.bet + amount) <= self.player.chips:
             self.player.bet += amount
 
     def deal_cards(self):
@@ -38,17 +38,17 @@ class Game:
 
         for i in range(2):
             animations.extend(self.take_card(self.player.hands[0], self.player.get_next_card_pos()))
-            animations.extend(self.take_card(self.dealer.hand, self.dealer.get_next_card_pos(), is_visible = i))
+            animations.extend(self.take_card(self.dealer.hand, self.dealer.get_next_card_pos()))
         
-        animations[-1].on_finish = self.finish_deal_cards
+        animations[-1].on_finish = lambda: self.finish_deal_cards(animations[-1].obj)
 
         self.animator.add_jobs(animations, asynchronous = True)
 
-    def finish_deal_cards(self):
-        self.dealer.hand.cards[1].set_visible()
+    def finish_deal_cards(self, placed_card: PlacedCard):
+        self.dealer.hand.add_card(placed_card)
 
         if self.player.has_blackjack() or self.dealer.has_blackjack():
-            return self.dealer_take()
+            return self.dealer_show()
 
         self.state = GameState.CHOOSE_ACTION
 
@@ -59,26 +59,30 @@ class Game:
         animations = []
 
         card = self.dealer.take_card()
+
+        hand.increment_n_cards()
         
         if card.is_cut_card():
             self.dealer.should_shuffle = True
             self.dealer.cut_card = PlacedCard(card, D_PLAYING_DECK_POS)
             
-            animations.append(Animation(self.dealer.cut_card, (D_PLAYING_DECK_POS[0] - CARD_SIZE[0] * 2, D_PLAYING_DECK_POS[1])))
+            animations.append(Animation(self.dealer.cut_card, (D_PLAYING_DECK_POS[0] - (CARD_SIZE[0] * 2), D_PLAYING_DECK_POS[1])))
 
             card = self.dealer.take_card()
 
         placed_card = PlacedCard(card, D_PLAYING_DECK_POS, is_rotated, is_visible = False)
+    
+        animations.append(Animation(placed_card, destination, on_finish = lambda: self.finish_take_card(hand, placed_card, is_visible)))
+
+        return animations
+        
+    def finish_take_card(self, hand: Hand, placed_card: PlacedCard, is_visible: bool):
         hand.add_card(placed_card)
         
         if is_visible:
-            animations.append(Animation(placed_card, destination, on_finish = hand.cards[-1].set_visible))
-        else:
-            animations.append(Animation(placed_card, destination))
+            placed_card.set_visible()
 
-        return animations
-
-    def player_hit(self, is_rotated: bool = False):
+    def player_hit(self):
         animation = self.take_card(self.player.hands[0], self.player.get_next_card_pos())
         
         self.animator.add_jobs(animation, asynchronous = True)
@@ -86,7 +90,7 @@ class Game:
         self.state = GameState.CHOOSE_ACTION
 
     def player_stand(self):
-        self.dealer_take()
+        self.dealer_show()
 
     def player_double_down(self):
         if self.player.chips < self.player.bet:
@@ -97,31 +101,57 @@ class Game:
         self.player.chips -= self.player.bet
         self.player.bet *= 2
 
-        self.player_hit(is_rotated = True)
+        animation = self.take_card(self.player.hands[0], self.player.get_next_card_pos(), is_rotated = True)
+        animation[-1].on_finish = lambda: self.finish_player_double_down(animation[-1].obj)
         
-        self.dealer_take()
+        self.animator.add_jobs(animation, asynchronous = True)
+
+    def finish_player_double_down(self, placed_card):
+        self.player.hands[0].add_card(placed_card)
+        
+        placed_card.set_visible()
+
+        self.dealer_show()
 
     def player_split(self):
         pass
 
-    def dealer_take(self):
-        self.state = GameState.DEALER_SHOW
+    def dealer_show(self):
+        self.state = GameState.IDLING
 
-        self.dealer.hand.cards[0].set_visible()
+        self.dealer.hand.cards[1].set_visible()
+
+        self.dealer_take()
+
+    def dealer_take(self, placed_card = None):
+        if placed_card is not None:
+            self.dealer.hand.add_card(placed_card)
+            placed_card.set_visible()
+
+        if self.dealer.should_take():
+            animation = self.take_card(self.dealer.hand, self.dealer.get_next_card_pos())
+            animation[-1].on_finish = lambda: self.dealer_take(animation[-1].obj)
+            
+            self.animator.add_jobs(animation, asynchronous = True)
+        else:
+            self.finish_dealer_take()
+
+    def finish_dealer_take(self):
+        self.state = GameState.POST_ROUND
     
     def get_winnings(self):
         player_value = self.player.hands[0].value
         dealer_value = self.dealer.hand.value
 
-        if self.player.is_blackjack:
+        if self.player.is_blackjack and not self.dealer.is_blackjack: # Blackjack
             return int(self.player.bet * (1 + BLACKJACK_MULTIPLIER))
         
-        if player_value == dealer_value:
+        if player_value == dealer_value: # Push
             return self.player.bet
         
-        if player_value > dealer_value and player_value <= 21:
+        if (player_value > dealer_value or dealer_value > 21) and player_value <= 21: # Player better value and not bust OR dealer bust and not player
             return self.player.bet * 2
-
+            
         return 0
     
     def end_round(self):
@@ -142,9 +172,11 @@ class Game:
         
         if self.dealer.cut_card is not None:
             self.dealer.cut_card.draw(screen)
-            
+        
         self.player.draw_hands(screen)
         self.dealer.draw_hand(screen)
+
+        self.animator.draw(screen)
         
         #print('Chips: {}\tBet: {}'.format(self.player.chips, self.player.bet))
         screen.blit(assets.fonts['standard'].render('Chips: {}        Bet: {}        State: {}'.format(self.player.chips, self.player.bet, self.state.name), False, (255, 255, 255)), (6, 6))

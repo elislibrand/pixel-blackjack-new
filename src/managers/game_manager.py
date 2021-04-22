@@ -44,7 +44,7 @@ class GameManager:
                         self.game.state = GameState.IDLING
 
                         self.game.player_stand()
-                    elif self.game.state == GameState.DEALER_SHOW:
+                    elif self.game.state == GameState.POST_ROUND:
                         self.game.state = GameState.IDLING
                         
                         self.game.end_round()
@@ -54,11 +54,11 @@ class GameManager:
 
                 if event.key == pg.K_UP:
                     if self.game.state == GameState.SELECT_BET:
-                        self.game.change_bet(2)
+                        self.game.change_bet(BET_STEP)
 
                 if event.key == pg.K_DOWN:
                     if self.game.state == GameState.SELECT_BET:
-                        self.game.change_bet(-2)
+                        self.game.change_bet(-BET_STEP)
 
                 # Testing only
                 if event.key == pg.K_r:

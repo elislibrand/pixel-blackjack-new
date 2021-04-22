@@ -31,15 +31,24 @@ class Dealer:
         return self.playing_deck.take_card()
 
     def get_next_card_pos(self):
-        n_cards = len(self.hand.cards)
+        n_cards = self.hand.n_cards
+
+        if n_cards <= 1:
+            return (
+                D_CARD_STARTING_POS[0] + (n_cards * D_CARD_STACK_OFFSET[0]),
+                D_CARD_STARTING_POS[1] + (n_cards * D_CARD_STACK_OFFSET[1])
+            )
 
         return (
-            D_CARD_STARTING_POS[0] + (n_cards * D_CARD_STACK_OFFSET[0]),
-            D_CARD_STARTING_POS[1] + (n_cards * D_CARD_STACK_OFFSET[1])
+            D_CARD_STARTING_POS[0] - ((n_cards - 1) * D_CARD_STACK_OFFSET[0]),
+            D_CARD_STARTING_POS[1] - ((n_cards - 1) * D_CARD_STACK_OFFSET[1])
         )
 
     def has_blackjack(self):
         return self.hand.value == 21 and len(self.hand.cards) == 2
+
+    def should_take(self):
+        return self.hand.value < 17
 
     def draw_deck(self, screen):        
         if self.playing_deck.cards[-1].rank is None:
