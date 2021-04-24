@@ -32,7 +32,7 @@ class Game:
 
         # TESTING
         self.testing_card = PlacedCard(self.dealer.take_card(), (100, 100), (0, 0, 0))
-        self.animator.add_jobs([RotationAnimation(self.testing_card, (0, 180, 90), duration_s = 0.5)], asynchronous = False)
+        self.animator.add_jobs([RotationAnimation(self.testing_card, (0, 500, 200), duration_s = 3)], asynchronous = False)
 
     def change_bet(self, amount: int):
         if BET_STEP <= (self.player.bet + amount) <= self.player.chips:
@@ -43,7 +43,7 @@ class Game:
 
         for i in range(2):
             animations.extend(self.take_card(self.player.hands[0], self.player.get_next_card_pos()))
-            animations.extend(self.take_card(self.dealer.hand, self.dealer.get_next_card_pos()))
+            animations.extend(self.take_card(self.dealer.hand, self.dealer.get_next_card_pos(), is_visible = not i))
         
         animations[-1].on_finish = lambda: self.finish_deal_cards(animations[-1].obj)
 
@@ -62,7 +62,7 @@ class Game:
         
         self.player.last_bet = self.player.bet
 
-    def take_card(self, hand: Hand, destination, is_rotated: bool = False, is_visible: bool = True):
+    def take_card(self, hand: Hand, destination, rotation_z: int = 0, is_visible: bool = True):
         animations = []
 
         card = self.dealer.take_card()
@@ -77,17 +77,23 @@ class Game:
 
             card = self.dealer.take_card()
 
-        placed_card = PlacedCard(card, D_PLAYING_DECK_POS, is_rotated, is_visible = False)
+        placed_card = PlacedCard(card, D_PLAYING_DECK_POS)
     
-        animations.append(TranslationAnimation(placed_card, destination, on_finish = lambda: self.finish_take_card(hand, placed_card, is_visible)))
+        animations.append(TranslationAnimation(placed_card, destination))
+
+        if is_visible or rotation_z != 0:
+            animations.append(
+                RotationAnimation(
+                    placed_card, 
+                    (0, 180 if is_visible else 0, rotation_z), 
+                    on_finish = lambda: self.finish_take_card(hand, placed_card)
+                )
+            )
 
         return animations
         
-    def finish_take_card(self, hand: Hand, placed_card: PlacedCard, is_visible: bool):
+    def finish_take_card(self, hand: Hand, placed_card: PlacedCard):
         hand.add_card(placed_card)
-        
-        if is_visible:
-            placed_card.set_visible()
 
     def player_hit(self):
         animation = self.take_card(self.player.hands[0], self.player.get_next_card_pos())
@@ -98,7 +104,6 @@ class Game:
 
     def finish_player_hit(self, placed_card: PlacedCard):
         self.player.hands[0].add_card(placed_card)
-        placed_card.set_visible()
 
         if self.player.hands[0].value >= 21:
             return self.dealer_show()
@@ -109,7 +114,7 @@ class Game:
         self.dealer_show()
 
     def player_double_down(self):
-        if self.player.chips < self.player.bet:
+        if self.player.chips < self.player.bet or len(self.player.hands[0].cards) > 2:
             self.state = GameState.CHOOSE_ACTION
             
             return
@@ -117,15 +122,13 @@ class Game:
         self.player.chips -= self.player.bet
         self.player.bet *= 2
 
-        animation = self.take_card(self.player.hands[0], self.player.get_next_card_pos(), is_rotated = True)
+        animation = self.take_card(self.player.hands[0], self.player.get_next_card_pos(), rotation_z = 90)
         animation[-1].on_finish = lambda: self.finish_player_double_down(animation[-1].obj)
         
         self.animator.add_jobs(animation, asynchronous = True)
 
     def finish_player_double_down(self, placed_card):
         self.player.hands[0].add_card(placed_card)
-        
-        placed_card.set_visible()
 
         self.dealer_show()
 
@@ -135,14 +138,18 @@ class Game:
     def dealer_show(self):
         self.state = GameState.IDLING
 
-        self.dealer.hand.cards[1].set_visible()
-
-        self.dealer_take()
+        
+        self.animator.add_jobs(
+            [RotationAnimation(
+                self.dealer.hand.cards[1], 
+                (0, 180, 0), 
+                on_finish = lambda: self.dealer_take()
+            )]
+        )
 
     def dealer_take(self, placed_card = None):
         if placed_card is not None:
             self.dealer.hand.add_card(placed_card)
-            placed_card.set_visible()
 
         if self.dealer.should_take():
             animation = self.take_card(self.dealer.hand, self.dealer.get_next_card_pos())

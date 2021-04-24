@@ -27,6 +27,15 @@ class PlacedCard(Card):
         self.image = assets.cards['cut'] if self.rank is None else assets.cards['{}{}'.format(self.rank.name, self.suit.name).lower()]
 
     def update_rotation(self):
+        if self.rank is not None:
+            x_rotation = self.rotation[0] % 360 > 90 and self.rotation[0] % 360 < 270
+            y_rotation = self.rotation[1] % 360 > 90 and self.rotation[1] % 360 < 270
+
+            if x_rotation == y_rotation:
+                self.image = assets.cards['facedown']
+            else:
+                self.image = assets.cards['{}{}'.format(self.rank.name, self.suit.name).lower()]
+
         width_x = int(CARD_SIZE[0] * abs(cos(radians(self.rotation[1]))))
         width_y = int(CARD_SIZE[1] * abs(cos(radians(self.rotation[0]))))
         
@@ -35,4 +44,8 @@ class PlacedCard(Card):
         self.transformed_image = pg.transform.rotate(image, self.rotation[2])
 
     def draw(self, screen: Screen):
-        screen.blit(self.transformed_image, (self.pos[0], self.pos[1]))
+        pos = (
+            self.pos[0] + (CARD_SIZE[0] - self.transformed_image.get_width()) / 2,
+            self.pos[1] + (CARD_SIZE[1] - self.transformed_image.get_height()) / 2
+        )
+        screen.blit(self.transformed_image, pos)
