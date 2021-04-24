@@ -1,7 +1,8 @@
 from src.engine import assets
 from src.engine import Screen
 from src.engine import Animator
-from src.objects import Animation
+from src.animations import TranslationAnimation
+from src.animations import RotationAnimation
 from src.objects import Player
 from src.objects import Dealer
 from src.objects import Hand
@@ -29,6 +30,10 @@ class Game:
 
         self.state = GameState.SELECT_BET
 
+        # TESTING
+        self.testing_card = PlacedCard(self.dealer.take_card(), (100, 100), (0, 0, 0))
+        self.animator.add_jobs([RotationAnimation(self.testing_card, (0, 180, 90), duration_s = 0.5)], asynchronous = False)
+
     def change_bet(self, amount: int):
         if BET_STEP <= (self.player.bet + amount) <= self.player.chips:
             self.player.bet += amount
@@ -52,7 +57,7 @@ class Game:
 
         self.state = GameState.CHOOSE_ACTION
 
-    def place_bet(self):
+    def place_bet(self):        
         self.player.chips -= self.player.bet
         
         self.player.last_bet = self.player.bet
@@ -68,13 +73,13 @@ class Game:
             self.dealer.should_shuffle = True
             self.dealer.cut_card = PlacedCard(card, D_PLAYING_DECK_POS)
             
-            animations.append(Animation(self.dealer.cut_card, (D_PLAYING_DECK_POS[0] - (CARD_SIZE[0] * 2), D_PLAYING_DECK_POS[1])))
+            animations.append(TranslationAnimation(self.dealer.cut_card, (D_PLAYING_DECK_POS[0] - (CARD_SIZE[0] * 2), D_PLAYING_DECK_POS[1])))
 
             card = self.dealer.take_card()
 
         placed_card = PlacedCard(card, D_PLAYING_DECK_POS, is_rotated, is_visible = False)
     
-        animations.append(Animation(placed_card, destination, on_finish = lambda: self.finish_take_card(hand, placed_card, is_visible)))
+        animations.append(TranslationAnimation(placed_card, destination, on_finish = lambda: self.finish_take_card(hand, placed_card, is_visible)))
 
         return animations
         
@@ -188,6 +193,10 @@ class Game:
         self.dealer.draw_hand(screen)
 
         self.animator.draw(screen)
+
+        # TESTING
+        if self.testing_card:
+            self.testing_card.draw(screen)
         
         #print('Chips: {}\tBet: {}'.format(self.player.chips, self.player.bet))
         screen.blit(assets.fonts['standard'].render('Chips: {}        Bet: {}        State: {}'.format(self.player.chips, self.player.bet, self.state.name), False, (255, 255, 255)), (6, 6))

@@ -1,19 +1,11 @@
-from src.data import easings
-from src.engine import assets
+from src.animations import Animation
 
-class Animation:
+class TranslationAnimation(Animation):
     def __init__(self, obj, destination, duration_s: float = 0.5, easing: str = 'in_out_cubic', on_finish = None):
-        self.obj = obj
+        super().__init__(obj, duration_s, easing, on_finish)
 
         self.starting_x, self.starting_y = self.obj.pos
         self.destination_x, self.destination_y = destination
-        
-        self.duration_s = duration_s
-        self.easing = easings.functions[easing]
-
-        self.on_finish = on_finish
-
-        self.progress = 0
 
     def update(self):
         easing_progress = self.easing(self.progress)
@@ -22,12 +14,13 @@ class Animation:
             self.starting_x + ((self.destination_x - self.starting_x) * easing_progress), 
             self.starting_y + ((self.destination_y - self.starting_y) * easing_progress)
         )
-
-        self.progress += 1 / (assets.settings['refresh_rate'] * self.duration_s)
-
-        if self.progress >= 1:
-            self.progress = 1
-
+        
+        super().update()
+    
     def finish(self):
-        if self.on_finish:
-            self.on_finish()
+        self.obj.pos = (
+            self.destination_x,
+            self.destination_y
+        )
+
+        super().finish()
