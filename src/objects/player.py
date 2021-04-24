@@ -4,16 +4,16 @@ from src.data.constants import *
 class Player:
     def __init__(self):
         self.chips = P_STARTING_CHIPS
-        self.bet = BET_STEP
+        self.last_bet = BET_STEP
 
     def build(self):
         self.hands = [Hand()]
 
-        if self.bet > self.chips:
+        if self.last_bet > self.chips:
             self.bet = self.chips
-
-        self.is_blackjack = False
-    
+        else:
+            self.bet = self.last_bet
+            
     def get_next_card_pos(self):
         n_cards = self.hands[0].n_cards
         
@@ -23,12 +23,7 @@ class Player:
         )
         
     def has_blackjack(self):
-        if self.hands[0].value == 21 and len(self.hands[0].cards) == 2:
-            self.is_blackjack = True
-
-            return True
-
-        return False
+        return self.hands[0].value == 21 and len(self.hands[0].cards) == 2
 
     def draw_hands(self, screen):
         for card in self.hands[0].cards:

@@ -54,6 +54,8 @@ class Game:
 
     def place_bet(self):
         self.player.chips -= self.player.bet
+        
+        self.player.last_bet = self.player.bet
 
     def take_card(self, hand: Hand, destination, is_rotated: bool = False, is_visible: bool = True):
         animations = []
@@ -85,7 +87,16 @@ class Game:
     def player_hit(self):
         animation = self.take_card(self.player.hands[0], self.player.get_next_card_pos())
         
+        animation[-1].on_finish = lambda: self.finish_player_hit(animation[-1].obj)
+        
         self.animator.add_jobs(animation, asynchronous = True)
+
+    def finish_player_hit(self, placed_card: PlacedCard):
+        self.player.hands[0].add_card(placed_card)
+        placed_card.set_visible()
+
+        if self.player.hands[0].value >= 21:
+            return self.dealer_show()
 
         self.state = GameState.CHOOSE_ACTION
 
@@ -143,7 +154,7 @@ class Game:
         player_value = self.player.hands[0].value
         dealer_value = self.dealer.hand.value
 
-        if self.player.is_blackjack and not self.dealer.is_blackjack: # Blackjack
+        if self.player.has_blackjack() and not self.dealer.has_blackjack(): # Blackjack
             return int(self.player.bet * (1 + BLACKJACK_MULTIPLIER))
         
         if player_value == dealer_value: # Push
