@@ -133,3 +133,4 @@ dmypy.json
 
 # Other
 tests/
+.DS_Store

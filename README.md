@@ -11,6 +11,4 @@
 * 'Space' to clear the board
 
 ## TODO
-* Clean up project code
-* Player/dealer bust when over 21
-* Bet cannot be 0
+* 
