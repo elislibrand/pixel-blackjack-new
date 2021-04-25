@@ -4,10 +4,12 @@ from src.enums import Rank
 from src.enums import Suit
 
 class Hand:
-    def __init__(self):
+    def __init__(self, is_active: bool = False):
         self.cards = []
 
         self.value = 0
+
+        self.is_active = is_active
 
         self.state = HandState.NO_ACE
 
@@ -15,6 +17,11 @@ class Hand:
         self.cards.append(card)
 
         self.add_value(card.get_value())
+
+    def remove_card(self, card: PlacedCard):
+        self.cards.remove(card)
+
+        self.remove_value(card.get_value())
 
     def add_value(self, value: int):
         self.value += value
@@ -33,6 +40,9 @@ class Hand:
             
     def remove_value(self, value: int):
         self.value -= value
+
+    def activate(self):
+        self.is_active = True
 
     '''
     def calculate_value(self):

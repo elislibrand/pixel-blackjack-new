@@ -1,8 +1,8 @@
 from src.animations import Animation
 
 class TranslationAnimation(Animation):
-    def __init__(self, obj, destination, duration_s: float = 0.5, easing: str = 'in_out_cubic', on_finish = None):
-        super().__init__(obj, duration_s, easing, on_finish)
+    def __init__(self, obj, destination, duration_s: float = 0.5, easing: str = 'in_out_cubic', should_draw: bool = True, on_finish = None):
+        super().__init__(obj, duration_s, easing, should_draw, on_finish)
 
         self.starting_x, self.starting_y = self.obj.pos
         self.destination_x, self.destination_y = destination

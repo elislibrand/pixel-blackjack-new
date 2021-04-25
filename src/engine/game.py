@@ -42,7 +42,7 @@ class Game:
         animations = []
 
         if iteration % 2 == 0:
-            animations.extend(self.take_card(self.player.hands[0], self.player.get_next_card_pos()))
+            animations.extend(self.take_card(self.player.hands[0], self.player.get_next_card_pos(self.player.hands[0])))
             if placed_card:
                 self.dealer.hand.add_card(placed_card)
         else:
@@ -105,7 +105,7 @@ class Game:
         hand.add_card(placed_card)
     
     def player_hit(self):
-        animations = self.take_card(self.player.hands[0], self.player.get_next_card_pos())
+        animations = self.take_card(self.player.hands[0], self.player.get_next_card_pos(self.player.hands[0]))
         
         animations[-1].on_finish = lambda: self.finish_player_hit(animations[-1].obj)
         
@@ -131,7 +131,7 @@ class Game:
         self.player.chips -= self.player.bet
         self.player.bet *= 2
 
-        animations = self.take_card(self.player.hands[0], self.player.get_next_card_pos(offset = DOUBLE_DOWN_OFFSET), rotation_z = 90)
+        animations = self.take_card(self.player.hands[0], self.player.get_next_card_pos(self.player.hands[0], offset = DOUBLE_DOWN_OFFSET), rotation_z = 90)
         animations[-1].on_finish = lambda: self.finish_player_double_down(animations[-1].obj)
         
         self.animator.add_jobs(animations, asynchronous = True)
@@ -142,6 +142,33 @@ class Game:
         self.dealer_show()
 
     def player_split(self):
+        if not self.player.hands[0].cards[0].get_value() == self.player.hands[0].cards[1].get_value():
+            self.state = GameState.CHOOSE_ACTION
+            
+            return
+
+        upper_card = self.player.hands[0].cards[1]
+        lower_card = self.player.hands[0].cards[0]
+
+        self.player.hands[0].remove_card(upper_card)
+        self.player.hands[1].add_card(upper_card)
+
+        self.animator.add_jobs([
+            TranslationAnimation(upper_card, P_HANDS_POS[self.player.get_n_active_hands()][1], duration_s = 0.25, should_draw = False),
+            TranslationAnimation(lower_card, P_HANDS_POS[self.player.get_n_active_hands()][0], duration_s = 0.25, should_draw = False, on_finish = lambda: self.player_split_deal_cards())
+        ])
+
+    def player_split_deal_cards(self):
+        animations = []
+
+        self.player.hands[1].activate()
+
+        animations.extend(self.take_card(self.player.hands[0], self.player.get_next_card_pos(self.player.hands[0])))
+        animations.extend(self.take_card(self.player.hands[1], self.player.get_next_card_pos(self.player.hands[1])))
+
+        self.animator.add_jobs(animations, asynchronous = True)
+        
+    def finish_player_split(self):
         pass
 
     def dealer_show(self):

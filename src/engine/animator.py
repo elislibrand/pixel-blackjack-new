@@ -34,6 +34,12 @@ class Animator:
     def draw(self, screen):
         for animation in self.jobs:
             if isinstance(animation, list):
+                if not animation[0].should_draw:
+                    continue
+
                 animation[0].obj.draw(screen)
             else:
+                if not animation.should_draw:
+                    continue
+
                 animation.obj.draw(screen)

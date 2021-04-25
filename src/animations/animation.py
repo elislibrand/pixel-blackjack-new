@@ -2,11 +2,13 @@ from src.data import easings
 from src.engine import assets
 
 class Animation:
-    def __init__(self, obj, duration_s: float, easing: str, on_finish):
+    def __init__(self, obj, duration_s: float, easing: str, should_draw: bool, on_finish):
         self.obj = obj
         
         self.duration_s = duration_s
         self.easing = easings.functions[easing]
+
+        self.should_draw = should_draw
 
         self.on_finish = on_finish
 

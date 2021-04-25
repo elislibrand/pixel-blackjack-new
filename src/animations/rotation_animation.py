@@ -1,8 +1,8 @@
 from src.animations import Animation
 
 class RotationAnimation(Animation):
-    def __init__(self, obj, rotation, duration_s: float = 0.25, easing: str = 'in_out_cubic', on_finish = None):
-        super().__init__(obj, duration_s, easing, on_finish)
+    def __init__(self, obj, rotation, duration_s: float = 0.2, easing: str = 'in_out_cubic', should_draw: bool = True, on_finish = None):
+        super().__init__(obj, duration_s, easing, should_draw, on_finish)
 
         self.starting_rotation_x, self.starting_rotation_y, self.starting_rotation_z = self.obj.rotation
         self.rotation_x, self.rotation_y, self.rotation_z = rotation
