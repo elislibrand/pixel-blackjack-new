@@ -23,7 +23,7 @@ class Dealer:
     def shuffle_playing_deck(self):
         print('\nWinnings    Player    Dealer\n{}'.format('-' * 28))
 
-        self.playing_deck.create(n_decks = 1)
+        self.playing_deck.create(n_decks = 6)
         self.playing_deck.shuffle()
         self.playing_deck.add_cut_card()
 
