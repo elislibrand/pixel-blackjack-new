@@ -20,8 +20,10 @@ class Dealer:
 
             self.should_shuffle = False
     
-    def shuffle_playing_deck(self):        
-        self.playing_deck.create(n_decks = 6)
+    def shuffle_playing_deck(self):
+        print('\nWinnings    Player    Dealer\n{}'.format('-' * 28))
+
+        self.playing_deck.create(n_decks = 1)
         self.playing_deck.shuffle()
         self.playing_deck.add_cut_card()
 
@@ -31,7 +33,7 @@ class Dealer:
         return self.playing_deck.take_card()
 
     def get_next_card_pos(self):
-        n_cards = self.hand.n_cards
+        n_cards = len(self.hand.cards)
 
         if n_cards <= 1:
             return (
@@ -49,6 +51,11 @@ class Dealer:
 
     def should_take(self):
         return self.hand.value < 17
+
+    def set_cut_card(self, placed_card):
+        self.cut_card = placed_card
+
+        self.should_shuffle = True
 
     def draw_deck(self, screen):        
         if self.playing_deck.cards[-1].rank is None:

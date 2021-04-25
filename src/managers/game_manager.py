@@ -18,10 +18,14 @@ class GameManager:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_RETURN:
                     if self.game.state == GameState.SELECT_BET:
+                        if self.game.player.bet == 0:
+                            return
+
                         self.game.state = GameState.IDLING
 
-                        self.game.deal_cards()
                         self.game.place_bet()
+                        self.game.deal_cards()
+                        
                     elif self.game.state == GameState.CHOOSE_ACTION:
                         self.game.state = GameState.IDLING
 
@@ -59,6 +63,10 @@ class GameManager:
                 if event.key == pg.K_DOWN:
                     if self.game.state == GameState.SELECT_BET:
                         self.game.change_bet(-BET_STEP)
+
+                if event.key == pg.K_TAB:
+                    if self.game.state == GameState.SELECT_BET:
+                        self.game.set_bet(self.game.player.chips)
 
                 # Testing only
                 if event.key == pg.K_r:

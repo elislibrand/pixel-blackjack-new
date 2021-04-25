@@ -14,12 +14,12 @@ class Player:
         else:
             self.bet = self.last_bet
             
-    def get_next_card_pos(self):
-        n_cards = self.hands[0].n_cards
+    def get_next_card_pos(self, offset = (0, 0)):
+        n_cards = len(self.hands[0].cards)
         
         return (
-            P_CARD_STARTING_POS[0] + (n_cards * P_CARD_STACK_OFFSET[0]), 
-            P_CARD_STARTING_POS[1] - (n_cards * P_CARD_STACK_OFFSET[1])
+            P_CARD_STARTING_POS[0] + (n_cards * P_CARD_STACK_OFFSET[0]) + offset[0], 
+            P_CARD_STARTING_POS[1] - (n_cards * P_CARD_STACK_OFFSET[1]) + offset[1]
         )
         
     def has_blackjack(self):

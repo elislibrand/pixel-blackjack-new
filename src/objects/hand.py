@@ -7,7 +7,6 @@ class Hand:
     def __init__(self):
         self.cards = []
 
-        self.n_cards = 0
         self.value = 0
 
         self.state = HandState.NO_ACE
@@ -34,12 +33,6 @@ class Hand:
             
     def remove_value(self, value: int):
         self.value -= value
-
-    def increment_n_cards(self):
-        self.n_cards += 1
-
-    def decrement_n_cards(self):
-        self.n_cards -= 1
 
     '''
     def calculate_value(self):

@@ -23,8 +23,8 @@ class PlacedCard(Card):
 
         self.update_rotation()
     
-    def set_visible(self):
-        self.image = assets.cards['cut'] if self.rank is None else assets.cards['{}{}'.format(self.rank.name, self.suit.name).lower()]
+    #def set_visible(self):
+    #    self.image = assets.cards['cut'] if self.rank is None else assets.cards['{}{}'.format(self.rank.name, self.suit.name).lower()]
 
     def update_rotation(self):
         if self.rank is not None:
@@ -48,4 +48,5 @@ class PlacedCard(Card):
             self.pos[0] + (CARD_SIZE[0] - self.transformed_image.get_width()) / 2,
             self.pos[1] + (CARD_SIZE[1] - self.transformed_image.get_height()) / 2
         )
+
         screen.blit(self.transformed_image, pos)
