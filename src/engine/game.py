@@ -42,12 +42,12 @@ class Game:
         animations = []
 
         if iteration % 2 == 0:
-            animations.extend(self.take_card(self.player.hands[0], self.player.get_next_card_pos(self.player.hands[0])))
+            animations.extend(self.take_card(self.player.active_hand, self.player.get_next_card_pos(self.player.active_hand)))
             if placed_card:
                 self.dealer.hand.add_card(placed_card)
         else:
             animations.extend(self.take_card(self.dealer.hand, self.dealer.get_next_card_pos(), is_visible = iteration == 1))
-            self.player.hands[0].add_card(placed_card)
+            self.player.active_hand.add_card(placed_card)
         
         if iteration == 3:
             animations[-1].on_finish = lambda: self.finish_deal_cards(placed_card = animations[-1].obj)
@@ -105,16 +105,16 @@ class Game:
         hand.add_card(placed_card)
     
     def player_hit(self):
-        animations = self.take_card(self.player.hands[0], self.player.get_next_card_pos(self.player.hands[0]))
+        animations = self.take_card(self.player.active_hand, self.player.get_next_card_pos(self.player.active_hand))
         
         animations[-1].on_finish = lambda: self.finish_player_hit(animations[-1].obj)
         
         self.animator.add_jobs(animations, asynchronous = True)
 
     def finish_player_hit(self, placed_card: PlacedCard):
-        self.player.hands[0].add_card(placed_card)
+        self.player.active_hand.add_card(placed_card)
 
-        if self.player.hands[0].value >= 21:
+        if self.player.active_hand.value >= 21:
             return self.dealer_show()
 
         self.state = GameState.CHOOSE_ACTION
@@ -123,7 +123,7 @@ class Game:
         self.dealer_show()
 
     def player_double_down(self):
-        if self.player.chips < self.player.bet or len(self.player.hands[0].cards) > 2:
+        if self.player.chips < self.player.bet or len(self.player.active_hand.cards) > 2:
             self.state = GameState.CHOOSE_ACTION
             
             return
@@ -131,13 +131,13 @@ class Game:
         self.player.chips -= self.player.bet
         self.player.bet *= 2
 
-        animations = self.take_card(self.player.hands[0], self.player.get_next_card_pos(self.player.hands[0], offset = DOUBLE_DOWN_OFFSET), rotation_z = 90)
+        animations = self.take_card(self.player.active_hand, self.player.get_next_card_pos(self.player.active_hand, offset = DOUBLE_DOWN_OFFSET), rotation_z = 90)
         animations[-1].on_finish = lambda: self.finish_player_double_down(animations[-1].obj)
         
         self.animator.add_jobs(animations, asynchronous = True)
 
     def finish_player_double_down(self, placed_card):
-        self.player.hands[0].add_card(placed_card)
+        self.player.active_hand.add_card(placed_card)
 
         self.dealer_show()
 
@@ -163,13 +163,18 @@ class Game:
 
         self.player.hands[1].activate()
 
-        animations.extend(self.take_card(self.player.hands[0], self.player.get_next_card_pos(self.player.hands[0])))
         animations.extend(self.take_card(self.player.hands[1], self.player.get_next_card_pos(self.player.hands[1])))
+        animations.extend(self.take_card(self.player.hands[0], self.player.get_next_card_pos(self.player.hands[0])))
+
+        animations[-1].on_finish = lambda: self.finish_player_split(animations[-1].obj)
 
         self.animator.add_jobs(animations, asynchronous = True)
         
-    def finish_player_split(self):
-        pass
+    def finish_player_split(self, placed_card: PlacedCard):
+        self.player.hands[0].add_card(placed_card)
+        self.player.active_hand = self.player.hands[1]
+
+        self.state = GameState.CHOOSE_ACTION
 
     def dealer_show(self):
         self.state = GameState.IDLING

@@ -1,4 +1,5 @@
 import pygame as pg
+from math import floor, ceil
 
 # Game information
 G_TITLE = 'Pixel Blackjack'
@@ -19,15 +20,15 @@ DOUBLE_DOWN_OFFSET = (8, -8)
 P_CARD_STARTING_POS = ((G_SIZE[0] / 2) - int(CARD_SIZE[0] / 2), G_SIZE[1] - CARD_SIZE[1] - 10)
 P_CARD_STACK_OFFSET = (8, 10)
 
-SPLIT_OFFSET = 10
+SPLIT_OFFSET = 20
 
 P_HANDS_POS = [
     [
         P_CARD_STARTING_POS
     ],
     [
-        (P_CARD_STARTING_POS[0] - (SPLIT_OFFSET / 2) - (CARD_SIZE[0] / 2), P_CARD_STARTING_POS[1]),
-        (P_CARD_STARTING_POS[0] + (SPLIT_OFFSET / 2) + (CARD_SIZE[0] / 2), P_CARD_STARTING_POS[1])
+        (P_CARD_STARTING_POS[0] - int(SPLIT_OFFSET / 2) - floor(CARD_SIZE[0] / 2), P_CARD_STARTING_POS[1]),
+        (P_CARD_STARTING_POS[0] + int(SPLIT_OFFSET / 2) + ceil(CARD_SIZE[0] / 2), P_CARD_STARTING_POS[1])
     ],
     [
         (P_CARD_STARTING_POS[0] - SPLIT_OFFSET - CARD_SIZE[0], P_CARD_STARTING_POS[1]),
@@ -35,10 +36,10 @@ P_HANDS_POS = [
         (P_CARD_STARTING_POS[0] + SPLIT_OFFSET + CARD_SIZE[0], P_CARD_STARTING_POS[1]),
     ],
     [
-        (P_CARD_STARTING_POS[0] - (SPLIT_OFFSET * 1.5) - (CARD_SIZE[0] * 1.5), P_CARD_STARTING_POS[1]),
-        (P_CARD_STARTING_POS[0] - (SPLIT_OFFSET / 2) - (CARD_SIZE[0] / 2), P_CARD_STARTING_POS[1]),
-        (P_CARD_STARTING_POS[0] + (SPLIT_OFFSET / 2) + (CARD_SIZE[0] / 2), P_CARD_STARTING_POS[1]),
-        (P_CARD_STARTING_POS[0] + (SPLIT_OFFSET * 1.5) + (CARD_SIZE[0] * 1.5), P_CARD_STARTING_POS[1])
+        (P_CARD_STARTING_POS[0] - int(SPLIT_OFFSET * 1.5) - floor(CARD_SIZE[0] * 1.5), P_CARD_STARTING_POS[1]),
+        (P_CARD_STARTING_POS[0] - int(SPLIT_OFFSET / 2) - floor(CARD_SIZE[0] / 2), P_CARD_STARTING_POS[1]),
+        (P_CARD_STARTING_POS[0] + int(SPLIT_OFFSET / 2) + ceil(CARD_SIZE[0] / 2), P_CARD_STARTING_POS[1]),
+        (P_CARD_STARTING_POS[0] + int(SPLIT_OFFSET * 1.5) + ceil(CARD_SIZE[0] * 1.5), P_CARD_STARTING_POS[1])
     ]
 ]
 

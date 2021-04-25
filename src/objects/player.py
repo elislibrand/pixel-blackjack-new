@@ -9,6 +9,8 @@ class Player:
     def build(self):
         self.hands = [Hand(is_active = True) if i == 0 else Hand() for i in range(len(P_HANDS_POS))]
 
+        self.active_hand = self.hands[0]
+
         if self.last_bet > self.chips:
             self.bet = self.chips
         else:
@@ -22,8 +24,8 @@ class Player:
         pos = P_HANDS_POS[self.get_n_active_hands() - 1][index]
         
         return (
-            pos[0] + (n_cards * P_CARD_STACK_OFFSET[0]) + offset[0], 
-            pos[1] - (n_cards * P_CARD_STACK_OFFSET[1]) + offset[1]
+            int(pos[0] + (n_cards * P_CARD_STACK_OFFSET[0]) + offset[0]), 
+            int(pos[1] - (n_cards * P_CARD_STACK_OFFSET[1]) + offset[1])
         )
         
     def get_n_active_hands(self):

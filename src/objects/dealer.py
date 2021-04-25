@@ -37,13 +37,13 @@ class Dealer:
 
         if n_cards <= 1:
             return (
-                D_CARD_STARTING_POS[0] + (n_cards * D_CARD_STACK_OFFSET[0]),
-                D_CARD_STARTING_POS[1] + (n_cards * D_CARD_STACK_OFFSET[1])
+                int(D_CARD_STARTING_POS[0] + (n_cards * D_CARD_STACK_OFFSET[0])),
+                int(D_CARD_STARTING_POS[1] + (n_cards * D_CARD_STACK_OFFSET[1]))
             )
 
         return (
-            D_CARD_STARTING_POS[0] - ((n_cards - 1) * D_CARD_STACK_OFFSET[0]),
-            D_CARD_STARTING_POS[1] - ((n_cards - 1) * D_CARD_STACK_OFFSET[1])
+            int(D_CARD_STARTING_POS[0] - ((n_cards - 1) * D_CARD_STACK_OFFSET[0])),
+            int(D_CARD_STARTING_POS[1] - ((n_cards - 1) * D_CARD_STACK_OFFSET[1]))
         )
 
     def has_blackjack(self):
