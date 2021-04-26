@@ -165,6 +165,7 @@ class Game:
 
     def player_split_move_hands(self):
         if self.player.is_next_hand_active():
+            self.player.move_hands()
 
     def player_split_deal_cards(self):
         animations = []
@@ -180,7 +181,7 @@ class Game:
         
     def finish_player_split(self, placed_card: PlacedCard):
         self.player.hands[0].add_card(placed_card)
-        self.player.active_hand = self.player.hands[1]
+        self.player.activate_hand(self.player.active_hand_index + 1)
 
         self.state = GameState.CHOOSE_ACTION
 
