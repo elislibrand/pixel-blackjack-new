@@ -115,12 +115,12 @@ class Game:
         self.player.active_hand.add_card(placed_card)
 
         if self.player.active_hand.value >= 21:
-            return self.dealer_show()
+            return self.go_to_next_hand()
 
         self.state = GameState.CHOOSE_ACTION
 
     def player_stand(self):
-        self.dealer_show()
+        self.go_to_next_hand()
 
     def player_double_down(self):
         if self.player.chips < self.player.bet or len(self.player.active_hand.cards) > 2:
@@ -128,8 +128,8 @@ class Game:
             
             return
 
-        self.player.chips -= self.player.bet
-        self.player.bet *= 2
+        self.player.chips -= self.player.last_bet
+        self.player.bet += self.player.last_bet
 
         animations = self.take_card(self.player.active_hand, self.player.get_next_card_pos(self.player.active_hand, offset = DOUBLE_DOWN_OFFSET), rotation_z = 90)
         animations[-1].on_finish = lambda: self.finish_player_double_down(animations[-1].obj)
@@ -139,7 +139,7 @@ class Game:
     def finish_player_double_down(self, placed_card):
         self.player.active_hand.add_card(placed_card)
 
-        self.dealer_show()
+        self.go_to_next_hand()
 
     def player_split(self):
         if not self.player.hands[0].cards[0].get_value() == self.player.hands[0].cards[1].get_value():
@@ -147,7 +147,12 @@ class Game:
             
             return
 
-        upper_card = self.player.hands[0].cards[1]
+        self.player.chips -= self.player.last_bet
+        self.player.bet += self.player.last_bet
+
+        self.player_split_move_hands()
+
+        """ upper_card = self.player.hands[0].cards[1]
         lower_card = self.player.hands[0].cards[0]
 
         self.player.hands[0].remove_card(upper_card)
@@ -156,7 +161,10 @@ class Game:
         self.animator.add_jobs([
             TranslationAnimation(upper_card, P_HANDS_POS[self.player.get_n_active_hands()][1], duration_s = 0.25, should_draw = False),
             TranslationAnimation(lower_card, P_HANDS_POS[self.player.get_n_active_hands()][0], duration_s = 0.25, should_draw = False, on_finish = lambda: self.player_split_deal_cards())
-        ])
+        ]) """
+
+    def player_split_move_hands(self):
+        if self.player.is_next_hand_active():
 
     def player_split_deal_cards(self):
         animations = []
@@ -174,6 +182,14 @@ class Game:
         self.player.hands[0].add_card(placed_card)
         self.player.active_hand = self.player.hands[1]
 
+        self.state = GameState.CHOOSE_ACTION
+
+    def go_to_next_hand(self):
+        if self.player.is_on_last_hand():
+            return self.dealer_show()
+
+        self.player.go_to_next_hand()
+        
         self.state = GameState.CHOOSE_ACTION
 
     def dealer_show(self):

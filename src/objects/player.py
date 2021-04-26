@@ -10,6 +10,7 @@ class Player:
         self.hands = [Hand(is_active = True) if i == 0 else Hand() for i in range(len(P_HANDS_POS))]
 
         self.active_hand = self.hands[0]
+        self.active_hand_index = 0
 
         if self.last_bet > self.chips:
             self.bet = self.chips
@@ -27,17 +28,41 @@ class Player:
             int(pos[0] + (n_cards * P_CARD_STACK_OFFSET[0]) + offset[0]), 
             int(pos[1] - (n_cards * P_CARD_STACK_OFFSET[1]) + offset[1])
         )
-        
+
     def get_n_active_hands(self):
         return len([hand for hand in self.hands if hand.is_active])
+
+    def activate_hand_with_index(self, index: int):
+        self.active_hand_index = index
+        self.active_hand = self.hands[index]
+        
+        self.hands[index].activate()
+
+    def is_on_last_hand(self):
+        return self.active_hand == self.hands[0]
+
+    def go_to_next_hand(self):
+        self.active_hand_index -= 1        
+        self.active_hand = self.hands[self.active_hand_index]
+
+    def is_next_hand_active(self):
+        next_hand_index = self.active_hand_index + 1
+
+        return self.hands[next_hand_index].is_active
+
+    def move_hands(self, hand: Hand = self.hands[self.active_hand_index + 1]):
+        move_hand_index = 
 
     def has_blackjack(self):
         return self.hands[0].value == 21 and len(self.hands[0].cards) == 2
 
     def draw_hands(self, screen):
-        for hand in self.hands:
-            for card in hand.cards:
-                card.draw(screen)
+        max_n_cards = max([len(hand.cards) for hand in self.hands])
+
+        for i in range(max_n_cards):
+            for hand in self.hands:
+                if i < len(hand.cards):
+                    hand.cards[i].draw(screen)
 
     def reset(self):
         self.build()
