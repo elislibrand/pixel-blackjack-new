@@ -142,7 +142,7 @@ class Game:
         self.go_to_next_hand()
 
     def player_split(self):
-        if not self.player.hands[0].cards[0].get_value() == self.player.hands[0].cards[1].get_value():
+        if not self.player.hands[0].cards[0].get_value() == self.player.hands[0].cards[1].get_value() or self.player.get_n_active_hands() == len(P_HANDS_POS):
             self.state = GameState.CHOOSE_ACTION
             
             return
@@ -152,36 +152,64 @@ class Game:
 
         self.player_split_move_hands()
 
-        """ upper_card = self.player.hands[0].cards[1]
-        lower_card = self.player.hands[0].cards[0]
 
-        self.player.hands[0].remove_card(upper_card)
-        self.player.hands[1].add_card(upper_card)
-
-        self.animator.add_jobs([
-            TranslationAnimation(upper_card, P_HANDS_POS[self.player.get_n_active_hands()][1], duration_s = 0.25, should_draw = False),
-            TranslationAnimation(lower_card, P_HANDS_POS[self.player.get_n_active_hands()][0], duration_s = 0.25, should_draw = False, on_finish = lambda: self.player_split_deal_cards())
-        ]) """
 
     def player_split_move_hands(self):
         if self.player.is_next_hand_active():
-            self.player.move_hands()
+            self.player.move_hands(self.player.hands[self.player.active_hand_index + 1])
+        
+        animations = []
+
+        positions = P_HANDS_POS[self.player.get_n_active_hands()]
+
+        for i, hand in enumerate(self.player.hands):
+            if not hand.is_active: continue
+
+            hand_pos = positions[i]
+
+            dx = hand.cards[0].pos[0] - hand_pos[0] # Get x difference
+
+            for card in hand.cards:
+                animations.append(TranslationAnimation(card, (card.pos[0] - dx, card.pos[1]), should_draw = False))
+        
+        animations[-1].on_finish = lambda: self.player_split_cards()
+        self.animator.add_jobs(animations)
+    
+    def player_split_cards(self):
+        upper_card = self.player.active_hand.cards[1]
+        
+        destination_hand_index = self.player.active_hand_index + 1
+
+        self.player.active_hand.remove_card(upper_card)
+
+        self.player.activate_hand_with_index(destination_hand_index)
+
+        self.player.active_hand.add_card(upper_card)
+
+        self.animator.add_jobs([
+            TranslationAnimation(
+                upper_card, 
+                P_HANDS_POS[self.player.get_n_active_hands() - 1][destination_hand_index],
+                should_draw = False, 
+                on_finish = lambda: self.player_split_deal_cards()
+            )
+        ])
 
     def player_split_deal_cards(self):
         animations = []
 
-        self.player.hands[1].activate()
+        old_hand = self.player.hands[self.player.active_hand_index - 1]
+        new_hand = self.player.hands[self.player.active_hand_index]
 
-        animations.extend(self.take_card(self.player.hands[1], self.player.get_next_card_pos(self.player.hands[1])))
-        animations.extend(self.take_card(self.player.hands[0], self.player.get_next_card_pos(self.player.hands[0])))
+        animations.extend(self.take_card(new_hand, self.player.get_next_card_pos(new_hand)))
+        animations.extend(self.take_card(old_hand, self.player.get_next_card_pos(old_hand)))
 
-        animations[-1].on_finish = lambda: self.finish_player_split(animations[-1].obj)
+        animations[-1].on_finish = lambda: self.finish_player_split(old_hand, animations[-1].obj)
 
         self.animator.add_jobs(animations, asynchronous = True)
         
-    def finish_player_split(self, placed_card: PlacedCard):
-        self.player.hands[0].add_card(placed_card)
-        self.player.activate_hand(self.player.active_hand_index + 1)
+    def finish_player_split(self, hand : Hand,  placed_card: PlacedCard):
+        hand.add_card(placed_card)
 
         self.state = GameState.CHOOSE_ACTION
 
