@@ -123,7 +123,7 @@ class Game:
         self.go_to_next_hand()
 
     def player_double_down(self):
-        if self.player.chips < self.player.bet or len(self.player.active_hand.cards) > 2:
+        if self.player.chips < self.player.last_bet or len(self.player.active_hand.cards) > 2:
             self.state = GameState.CHOOSE_ACTION
             
             return
@@ -142,9 +142,9 @@ class Game:
         self.go_to_next_hand()
 
     def player_split(self):
-        if not self.player.hands[0].cards[0].get_value() == self.player.hands[0].cards[1].get_value() or self.player.get_n_active_hands() == len(P_HANDS_POS):
+        if self.player.chips < self.player.last_bet or (not self.player.active_hand.cards[0].get_value() == self.player.active_hand.cards[1].get_value() or self.player.get_n_active_hands() == len(P_HANDS_POS)):
             self.state = GameState.CHOOSE_ACTION
-            
+
             return
 
         self.player.chips -= self.player.last_bet

@@ -11,4 +11,4 @@
 * 'Space' to clear the board
 
 ## TODO
-* 
+* If player AND dealer bust, winnings should be 0
