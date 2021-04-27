@@ -152,8 +152,6 @@ class Game:
 
         self.player_split_move_hands()
 
-
-
     def player_split_move_hands(self):
         if self.player.is_next_hand_active():
             self.player.move_hands(self.player.hands[self.player.active_hand_index + 1])
@@ -163,14 +161,15 @@ class Game:
         positions = P_HANDS_POS[self.player.get_n_active_hands()]
 
         for i, hand in enumerate(self.player.hands):
-            if not hand.is_active: continue
+            if not hand.is_active:
+                continue
 
             hand_pos = positions[i]
 
             dx = hand.cards[0].pos[0] - hand_pos[0] # Get x difference
 
             for card in hand.cards:
-                animations.append(TranslationAnimation(card, (card.pos[0] - dx, card.pos[1]), should_draw = False))
+                animations.append(TranslationAnimation(card, (card.pos[0] - dx, card.pos[1]), duration_s = 0.25, should_draw = False))
         
         animations[-1].on_finish = lambda: self.player_split_cards()
         self.animator.add_jobs(animations)
@@ -181,15 +180,14 @@ class Game:
         destination_hand_index = self.player.active_hand_index + 1
 
         self.player.active_hand.remove_card(upper_card)
-
         self.player.activate_hand_with_index(destination_hand_index)
-
         self.player.active_hand.add_card(upper_card)
 
         self.animator.add_jobs([
             TranslationAnimation(
                 upper_card, 
                 P_HANDS_POS[self.player.get_n_active_hands() - 1][destination_hand_index],
+                duration_s = 0.25,
                 should_draw = False, 
                 on_finish = lambda: self.player_split_deal_cards()
             )

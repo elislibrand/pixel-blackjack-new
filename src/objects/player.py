@@ -51,14 +51,14 @@ class Player:
         return self.hands[next_hand_index].is_active
 
     def move_hands(self, hand: Hand):
-        src_index = self.hands.index(hand)
+        hand_index = self.hands.index(hand)
         
-        if(self.hands[src_index + 1].is_active):
-            self.move_hands(self.hands[src_index + 1])
+        if(self.hands[hand_index + 1].is_active):
+            self.move_hands(self.hands[hand_index + 1])
         
-        self.hands[src_index] = self.hands[src_index + 1] # Move unused hand forwards
+        self.hands[hand_index] = self.hands[hand_index + 1] # Move unused hand forwards
 
-        self.hands[src_index + 1] = hand        
+        self.hands[hand_index + 1] = hand        
 
     def has_blackjack(self):
         return self.hands[0].value == 21 and len(self.hands[0].cards) == 2
